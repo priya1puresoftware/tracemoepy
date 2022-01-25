@@ -19,10 +19,9 @@ jobs:
       - run: git submodule sync
       - run: git submodule update --init
       - run:
-          name: Build image
+          name: py_version
           command: |
-            source .ci/ubuntu_ci.sh
-            update_version_metadata
+            python --version
       - run:
           name: Install dependencies
           command: |
