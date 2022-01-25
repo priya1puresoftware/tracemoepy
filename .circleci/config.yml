@@ -1,0 +1,47 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@1.5.0
+
+jobs:
+  manylinux2014-aarch64:
+    parameters:
+      cibw_build:
+        type: string
+        default: "cp37-*"
+
+    machine:
+      image: ubuntu-2004:202101-01
+    resource_class: arm.medium
+   
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - run:
+          name: Build image
+          command: |
+            source .ci/ubuntu_ci.sh
+            update_version_metadata
+      - run:
+          name: Install dependencies
+          command: |
+             python -m pip install --upgrade pip
+             python -m pip install pytest
+             python -m pip install pytest-asyncio 
+             pip install -r requirements.txt
+             python setup.py install
+      - run:
+          name: test
+          command: |
+            cd tests
+            pytest
+workflows:
+  version: 2.1
+  main:
+    jobs:
+      - manylinux2014-aarch64:
+          matrix:
+            parameters:
+              cibw_build:
+                - "cp37*"
